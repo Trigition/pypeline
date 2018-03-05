@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 import networkx as nx
+
 
 class Pypeline():
 
@@ -36,7 +38,7 @@ class Pypeline():
         and builds a dependency graph. This is for
         quickly finding input edges for nodes
         """
-        self.dependencies = DiGraph()
+        self.dependencies = nx.DiGraph()
         for edge in self.pypeline.edges():
             self.depencencies.add_path(edge[1], edge[0])
 
@@ -46,8 +48,8 @@ class Pypeline():
         :func1: The 'feeding' function
         :func2: The next function which 'feeds'
         """
-        src_node = Node(func, self, max_threads=func1_max_threads)
-        dst_ndoe = Node(func, self, max_threads=func2_max_threads)
+        src_node = Node(func1, self, max_threads=func1_max_threads)
+        dst_node = Node(func2, self, max_threads=func2_max_threads)
         self.pypeline.add_edge(src_node, dst_node)
 
     def add_root_func(self, func, max_threads=1):

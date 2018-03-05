@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 from enum import Enum
+from queue import Queue
+
 
 class Node():
 
@@ -26,7 +29,7 @@ class Node():
         self.problem = func
         self.max_threads = max_threads
         self.output = Queue()
-        self.color = State.unvisited
+        self.color = Node.State.unvisited
         self.pypeline = pypeline
 
     def get_next_job(self):
@@ -46,13 +49,13 @@ class Node():
         :worker_ref: A reference to the worker being assigned
         """
         # Assigns a worker to a node
-        worker_ref.assign_node(self) # Use double dispatch
+        worker_ref.assign_node(self)  # Use double dispatch
         worker_ref.run()
-        self.color = State.running
+        self.color = Node.State.running
         # Set children nodes to be waiting
         children = self.pypeline.ancestors(self)
         for child in children:
-            child.color = State.waiting
+            child.color = Node.State.waiting
 
     def are_parents_finished(self):
         """ This method checks to see if parent's
@@ -60,7 +63,7 @@ class Node():
         :returns: True if parent's are all done
         """
         parent_nodes = self.pypeline.predecessors(self)
-        parents_done = [p.color == State.done for p in parent_nodes]
+        parents_done = [p.color == Node.State.done for p in parent_nodes]
         if all(parents_done):
             return True
         else:
@@ -69,7 +72,7 @@ class Node():
     def set_done(self):
         """Sets the node status to be finished
         """
-        self.color = State.done
+        self.color = Node.State.done
 
     @staticmethod
     def get_largest_queue(nodes):

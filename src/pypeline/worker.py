@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from queue import Queue
+from threading import Thread
+import queue
+
 
 class Worker(Thread):
 
@@ -36,6 +38,7 @@ class Worker(Thread):
             try:
                 job_input = self.cur_node.get_next_job()
                 output = self.cur_node.problem(**job_input)
+                self.cur_node.output.put(output)
             except queue.Empty():
                 # Worker timeout, check to see if node parent's are
                 # finished
@@ -49,11 +52,11 @@ class Worker(Thread):
                     # TODO Contact Pypeline to see which node needs
                     # computation
                     continue
-        # Currently results in another callstack, find a way for 
+        # Currently results in another callstack, find a way for
         # pypeline instance to allocate workers itself async
         if self.cur_node.pypeline is not None:
             self.cur_node.pypeline.assign_worker(self)
-    
+
     def __str__(self):
         """ Overrides the string cast
         of this class
