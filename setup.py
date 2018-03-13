@@ -66,6 +66,7 @@ setup(
     ],
     install_requires=[
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
+        'networkx'
     ],
     extras_require={
         # eg:

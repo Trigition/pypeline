@@ -32,6 +32,15 @@ class Node():
         self.color = Node.State.unvisited
         self.pypeline = pypeline
 
+    def __hash__(self):
+        """Specifies the hash function for the Node, which
+        will be on its interior function
+        :returns: The hash of the function contained within
+        the node
+
+        """
+        return hash(self.problem)
+
     def get_next_job(self):
         """Breaks off data from any of the input jobs
         Currently behavior prioritizes largest queue to pull
@@ -39,7 +48,7 @@ class Node():
         :returns: Data from the largest input queue
         TODO Implement some form of priority for bottleneck nodes
         """
-        parent_nodes = self.pypeline.predecessors(self)
+        parent_nodes = self.pypeline.parents_of(self)
         priority_queue = Node.get_largest_queue(parent_nodes)
         job = priority_queue.get(timeout=1)
         return job
@@ -50,10 +59,9 @@ class Node():
         """
         # Assigns a worker to a node
         worker_ref.assign_node(self)  # Use double dispatch
-        worker_ref.run()
         self.color = Node.State.running
         # Set children nodes to be waiting
-        children = self.pypeline.ancestors(self)
+        children = self.pypeline.children_of(self)
         for child in children:
             child.color = Node.State.waiting
 
@@ -62,7 +70,7 @@ class Node():
         are done sending input parameters
         :returns: True if parent's are all done
         """
-        parent_nodes = self.pypeline.predecessors(self)
+        parent_nodes = self.pypeline.parents_of(self)
         parents_done = [p.color == Node.State.done for p in parent_nodes]
         if all(parents_done):
             return True
@@ -81,10 +89,46 @@ class Node():
         :returns: A reference to the largest queue
         """
         queues = [n.output for n in nodes]
-        largest_len, largest_queue = (len(queues[0]), queues[0])
+        largest_len, largest_queue = (queues[0].qsize, queues[0])
         for q in queues[1:]:
             if len(q) > largest_len:
-                largest_len = len(q)
+                largest_len = q.qsize
                 largest_queue = q
 
         return largest_queue
+
+
+class UtilityNode(Node):
+
+    """A Utility node serves as I/O node interfaces
+    for a Pypeline"""
+
+    def __init__(self, pypeline):
+        """Initializes a Utility Node"""
+        Node.__init__(self, None, pypeline)
+        self.problem = lambda x: x
+
+    @staticmethod
+    def process_list_input(arg):
+        """Processes a single input into *arg **kwarg formats
+        """
+        if type(arg) is tuple:
+            # Assume user has already placed correct input
+            return arg
+        else:
+            # Assume user has placed elements to be processed
+            # into pypeline format automatically
+            return (arg, None)
+        
+
+    def are_parents_finished(self):
+        """Checks to see if pypeline is done
+        :returns: True if pypeline is expecting no
+        more input
+
+        """
+        # TODO Make pypeline decide
+        return True
+
+    def get_next_job(self):
+        return self.pypeline.input.get(block=True, timeout=1)

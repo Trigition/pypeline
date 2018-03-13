@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from threading import Thread
 import queue
+from threading import Thread
 
 
 class Worker(Thread):
@@ -11,7 +11,7 @@ class Worker(Thread):
     separate threads to execute and solve
     computational problems"""
 
-    def __init__(self, worker_index, worker_name="Worker"):
+    def __init__(self, worker_index, start_node, worker_name="Worker"):
         """Initializes a Worker
 
         :worker_index: TODO
@@ -23,6 +23,9 @@ class Worker(Thread):
         self.worker_index = worker_index
         self.worker_name = worker_name
         self.is_idle = False
+        #self.assign_node(start_node)
+        start_node.assign_worker(self)
+        self.start()
 
     def assign_node(self, node):
         """Assigns a worker a function to perform
@@ -34,28 +37,23 @@ class Worker(Thread):
         """Runs the thread
         """
         self.is_idle = False
-        while True:
+        while not self.cur_node.pypeline.is_done():
             try:
                 job_input = self.cur_node.get_next_job()
-                output = self.cur_node.problem(**job_input)
+                output = self.cur_node.problem(job_input)
                 self.cur_node.output.put(output)
-            except queue.Empty():
+            except queue.Empty:
                 # Worker timeout, check to see if node parent's are
                 # finished
                 if self.cur_node.are_parents_finished():
                     # Parents are finished giving output
                     # this node is now finished processing as well
-                    self._is_idle = True
+                    # get a new job
                     self.cur_node.set_done()
-                    break
-                else:
-                    # TODO Contact Pypeline to see which node needs
-                    # computation
-                    continue
-        # Currently results in another callstack, find a way for
-        # pypeline instance to allocate workers itself async
-        if self.cur_node.pypeline is not None:
-            self.cur_node.pypeline.assign_worker(self)
+                    if self.cur_node.pypeline.assign_worker(self):
+                        continue
+                    else:
+                        break
 
     def __str__(self):
         """ Overrides the string cast
