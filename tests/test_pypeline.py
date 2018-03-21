@@ -42,8 +42,10 @@ def test_linear_chain():
     """Tests aligning functions into pipeline
     """
     pype = Pypeline(2)
+
     def src(x):
         return 2*x
+
     pype.link(src)
     pype.link(src, lambda y: print(y))
 

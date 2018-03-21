@@ -34,7 +34,7 @@ class Pypeline():
     def __initialize_workers__(self):
         self.workers = [Worker(i, self.root_nodes['main']) for i in range(self.num_threads)]
 
-    def __initialize__graph__(self, channel_dict={'main':1}):
+    def __initialize__graph__(self, channel_dict={'main': 1}):
         """Initializes the graph
         """
         # TODO Have pypeline use channel names
@@ -45,7 +45,6 @@ class Pypeline():
         """Gets the Node containing the passed function.
         If no Node exists, one is created and a map record
         is made
-        
         :func: The passed function
         :max_threads: The maximum number of threads for
         a new node. If a node already exists for the function,
