@@ -26,7 +26,7 @@ Overview
 
 .. |coveralls| image:: https://coveralls.io/repos/trigition/pypeline/badge.svg?branch=master&service=github
     :alt: Coverage Status
-    :target: https://coveralls.io/r/trigition/pypeline
+    :target: https://coveralls.io/github/trigition/pypeline
 
 .. |version| image:: https://img.shields.io/pypi/v/pypeline.svg
     :alt: PyPI Package latest release
