@@ -26,6 +26,7 @@ class Pypeline():
         self.name = name
         self.pype = nx.DiGraph()
         self.max_timeouts = max_timeouts
+        self.halt = False
         self.root_nodes = {}
         self.func_node_map = {}
         self.__initialize__graph__()
@@ -120,7 +121,10 @@ class Pypeline():
         :returns: True if all nodes have finished computation
 
         """
-        return all([n.color == Node.State.done for n in self.pype.nodes()])
+        if self.halt:
+            return True
+        else:
+            return all([n.color == Node.State.done for n in self.pype.nodes()])
 
     def children_of(self, node_ref):
         """Finds the children nodes of a given parent
@@ -148,17 +152,24 @@ class Pypeline():
         :returns: The a dict containing output data
 
         """
-        self.__initialize_workers__()
-        for worker in self.workers:
-            worker.join()
-        # Look for leaf nodes with no output
-        p = self.pype
-        for node in self.pype.nodes():
-            t = (node.problem.__name__, self.pype.out_degree(node), self.pype.in_degree(node))
-            print('%s %d %d' % t)
-        leaf_nodes = [n for n in p.nodes() if p.out_degree(n) == 0]
-        # TODO better output
-        result = {}
-        for node in leaf_nodes:
-            result[node.problem] = list(node.output.queue)
+        try:
+            self.__initialize_workers__()
+            for worker in self.workers:
+                worker.join()
+            # Look for leaf nodes with no output
+            p = self.pype
+            for node in self.pype.nodes():
+                t = (node.problem.__name__, self.pype.out_degree(node), self.pype.in_degree(node))
+                print('%s %d %d' % t)
+            leaf_nodes = [n for n in p.nodes() if p.out_degree(n) == 0]
+            # TODO better output
+            result = {}
+            for node in leaf_nodes:
+                result[node.problem] = list(node.output.queue)
+        except KeyboardInterrupt:
+            self.halt = True
+            print('Waiting for workers to halt')
+            for worker in self.workers:
+                worker.join()
+            raise KeyboardInterrupt('User halting pypeline')
         return result

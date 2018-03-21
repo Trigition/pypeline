@@ -23,7 +23,6 @@ class Worker(Thread):
         self.worker_index = worker_index
         self.worker_name = worker_name
         self.is_idle = False
-        #self.assign_node(start_node)
         start_node.assign_worker(self)
         self.start()
 
