@@ -39,7 +39,6 @@ class Pypeline():
         """
         # TODO Have pypeline use channel names
         for channel, nthreads in channel_dict.items():
-            #self.root_nodes.append(UtilityNode(self))
             self.root_nodes[channel] = UtilityNode(self)
 
     def __get_node__(self, func, max_threads=1):
@@ -74,8 +73,6 @@ class Pypeline():
         destination node for the specified input channel
 
         """
-        # Base case, only func1 is passed
-        func_map = self.func_node_map
         if func2 is None:
             # Check to see if func1 is in defined functions
             src_node = self.root_nodes[parent_channel]

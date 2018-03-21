@@ -119,7 +119,6 @@ class UtilityNode(Node):
             # Assume user has placed elements to be processed
             # into pypeline format automatically
             return (arg, None)
-        
 
     def are_parents_finished(self):
         """Checks to see if pypeline is done
