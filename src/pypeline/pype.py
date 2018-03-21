@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
+from queue import Queue
+
 import networkx as nx
 
-from queue import Queue
-from pypeline.node import Node, UtilityNode
+from pypeline.node import Node
+from pypeline.node import UtilityNode
 from pypeline.worker import Worker
 
 
